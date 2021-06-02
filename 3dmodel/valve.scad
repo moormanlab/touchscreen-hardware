@@ -5,11 +5,11 @@
 
 use <utils.scad>;
 
-valveD = 6.38;//6.27  //6.35 6.38 too tight
+valveD = 6.35;//6.27  //6.35 6.38 too tight
 valveH = 6.5;
 hoseOutD  =  1.7; // form mainfold A, outter diam of a house going inside the hole
 hoseInD  = 1.8; // for mainfold B, sligly less than inner diam of a hose that goes over the port
-portA = 3.18;
+portA = 3.25;
 
 module socket() {
   socketL =  7.4;//7.14; //7.3 needed adjustment, testing 7.4
@@ -71,8 +71,8 @@ module mainfoldA() {
 }
 
 
-portOD = 3.3;
-portID = 1.9;
+portOD = 3.2;
+portID = 1.8;
 
 
 module mainfold() {
@@ -95,7 +95,7 @@ module mainfold() {
     translate([0,0,bottomTick+10])cylinder(h=20,d=valveD,$fn=100,center = true);
     translate([0,0,bottomTick-.2+0.0001])cylinder(h=.4,d2=valveD,d1=valveD*.9,$fn=100,center = true);
  
-    translate([0,0,bottomTick+valveH])scale([1,1,10])socket();
+    translate([0,0,bottomTick+valveH])scale([5,5,2])socket();
     
     //ports holes
     translate([0,(wallTick+valveD)/2+portExt/2-.08,bottomTick+portA])rotate([90,0,0])cylinder(h=wallTick+portExt+.2,d=portID,$fn=40,center=true);
@@ -107,7 +107,7 @@ module mainfold() {
 *translate([0,0,8.4+15])valve();
 mainfold();
 
-difference(){
+*difference(){
   union(){
 *    color("red")translate([0,0,8.4])valve();
     mainfold();
