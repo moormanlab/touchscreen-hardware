@@ -50,11 +50,46 @@ module lickportHolder(a,b,c){
     translate([-.5,0,0])cube([4*d,2.2*d,d],center=true);
     scale([1.02,1.02,1.02])
     rotate([0,45,0])cylinder(h=b,d1=2*d,d2=d,$fn=100,center=true);
-    %rotate([0,45,0])cylinder(h=b,d1=2*d,d2=d,$fn=100,center=true);
+    //%rotate([0,45,0])cylinder(h=b,d1=2*d,d2=d,$fn=100,center=true);
   }
   translate([1.5*d-.5,0,-d+.001])cube([d,2.2*d,d],center=true);
 }
 
-//lickport(4,10,1);
-lickportHolder(4,10,1);
+*lickport(4,10,1);
+*lickportHolder(4,10,1);
 
+module container (Diam=20,Vol=5) {
+  /// Diamm [mm]
+  // Vol = [ml]
+  h1 = 1 / (1000 * PI * Diam/1000 * Diam/1000);
+  h2 = Vol*h1;
+
+  portOD = 3.2;
+  portID = 1.8;
+  
+  module port(L) {
+    portExt = L;
+
+    
+    difference(){
+      cylinder(h=portExt,d1=portOD,d2=portOD+.4,$fn=64,center=true);
+      cylinder(h=2+portExt+.2,d=portID,$fn=64,center=true);
+    }
+    translate([0,0,-portExt/2])torus((portOD-portID)/2,(portOD+portID)/2);
+  }
+    
+  difference(){
+    union(){
+      cylinder(h=h2,d=Diam+2,$fn=64);
+      translate([0,0,-5]) cylinder(h=5,d1=2,d2=Diam+2,$fn=64);
+      translate([0,0,-6]) port(4); 
+    }
+    translate([0,0,-.01])cylinder(h=h2+.02,d=Diam,$fn=64);
+    translate([0,0,-5]) cylinder(h=5,d1=0,d2=Diam,$fn=64);
+    translate([0,0,-8])cylinder(h=5,d=portID,$fn=64);
+  }
+  for (i = [1:Vol-.1]) translate([0,0,i*h1]) torus(.4,Diam);
+  
+}
+  
+container(12,6);

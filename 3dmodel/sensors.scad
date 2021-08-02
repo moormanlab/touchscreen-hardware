@@ -5,6 +5,12 @@
 
 use <utils.scad>;
 
+*adafruitSensorCase(W=12,show=true);
+*sparkfunSensorCase(W=8,show=true,depth=8);
+*sparkfunIR();
+sparkfunSpeaker();
+
+
 module adafruitIRsensor(){
   translate([4,0,0])r2cube([12,10,8],r=1.5,fn=32,center=true);
   translate([-4,0,0])cube([12,10,8],center=true);
@@ -35,16 +41,12 @@ module adafruitSensorCase(W=6,show=false){
     }
 }
 
-!adafruitSensorCase(W=12,show=true);
-
 module sparkfunIR(){
   cube([4.4,1.5,5.7], center=true);
   translate([0,.75,5.7/2-1.22])sphere(r=.75,$fn=64);
   translate([ 1.27, 0,(-12.7-5.7)/2])cube([.5,.5,12.7],center=true);
   translate([-1.27, 0,(-12.7-5.7)/2])cube([.5,.5,12.7],center=true);
 }
-
-*sparkfunIR();
 
 module sparkfunSensorCase(W=6,depth=8,show=false){
   D = depth;
@@ -63,5 +65,7 @@ module sparkfunSensorCase(W=6,depth=8,show=false){
   translate([0,-depth/2+1,0])cube([W+1,1,5.8],center=true);
 }
 
-*sparkfunSensorCase(W=8,show=true,depth=8);
-
+module sparkfunSpeaker() {
+  cylinder(h=13,d=30,$fn=64);
+  for(i=[-1,1])translate([i*7.8,0,-5]) cylinder(h=10,d=1,$fn=32,center=true);
+}

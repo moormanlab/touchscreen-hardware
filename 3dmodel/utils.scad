@@ -3,10 +3,10 @@
 //-- Moorman Lab, University of Massachusetts Amherst
 //-- v1.2 - April 2021
 
-
+// screw to do differences
 module screwM3(length,show=false){
   translate([0,0,-length-.005])cylinder(h=length+.1+.005,d=3.4,$fn=64);
-  cylinder(h=3,d=5.5,$fn=64);
+  cylinder(h=4,d=6,$fn=64);
   if (show==true) {
     %translate([0,0,-length])cylinder(h=length,d=3.2,$fn=64);
     %cylinder(h=3,d=5.5,$fn=64);
@@ -14,6 +14,7 @@ module screwM3(length,show=false){
   }
 }
 
+// nut to do differences
 module nutM3(rotation=0,show=false) {
   rotate([0,0,rotation])cylinder(h=2.6+.01,d=6.5,$fn=6,center=true);
   if (show==true) {
@@ -25,6 +26,11 @@ module nutM3(rotation=0,show=false) {
 }
 
 module torus(d1,d2,fn=64){
+  //d1: thickness of the torus
+  //d2: middle diameter
+  // external diameter = d2 + d1/2
+  // internal diameter = d2 - d1/2
+  
   assert (d1<=d2, str("ERROR d1 must not be greater than d2. d1 = ",d1,"| d2 = ",d2));
   rotate_extrude(convexity = 10,$fn=fn)
   translate([d2/2, 0, 0])
@@ -37,7 +43,12 @@ module rrect(size,center=false,fn=64){
   dx = size[0];
   dy = size[1];
   dz = size[2];
-  
+
+  if (center==true)
+    _rrect(size,fn);
+  else
+    translate([dx/2,dy/2,dz/2]) _rrect(size,fn);
+
   module _rrect(size,fn){
     d = min(dx,dy);
     a = (d == dx ? 0 : 1);
@@ -47,40 +58,10 @@ module rrect(size,center=false,fn=64){
         translate([a*i*(dx-d)/2,(1-a)*i*(dy-d)/2,0])
              cylinder(h=dz,d=d,$fn=fn,center=true);
   }
-  
-  if (center==true)
-    _rrect(size,fn);
-  else
-    translate([dx/2,dy/2,dz/2]) _rrect(size,fn);
-  
+
 }  
 
 module r2cube(size,center=false,r=0,fn=64){
-
-  module _r2cube(size,r,fn){
-    
-    hull()
-      for(i=[-1,1]) 
-        translate([i*(dx/2-r),0,0])
-          rrect([2*r,dy,dz],$fn=fn,center=true);
-
-//    hull(){
-//      for(i=[-1,1]) 
-//        translate([i*(dx/2-r),0,0])
-//          hull(){
-//            for(j=[-1,1])
-//              translate([0,j*(dy/2-r),0])
-//                cylinder(h=dz,r=r,$fn=fn,center=true);
-//          }
-//    }
-
-//    hull()
-//      for(i=[-1,1]) 
-//        for(j=[-1,1])
-//          translate([i*(dx/2-r),j*(dy/2-r),0])
-//            cylinder(h=dz,r=r,$fn=fn,center=true);
-    
-  }
 
   dx = size[0];
   dy = size[1];
@@ -93,6 +74,42 @@ module r2cube(size,center=false,r=0,fn=64){
     _r2cube(size,r,fn);
   else
     translate([dx/2,dy/2,dz/2]) _r2cube(size,r,fn);
+  
+  module _r2cube(size,r,fn){
+    
+    hull()
+      for(i=[-1,1]) 
+        translate([i*(dx/2-r),0,0])
+          rrect([2*r,dy,dz],fn=fn,center=true);
+
+  }
+
+}
+
+module rcylinder2(h,r=0,d=0,center=false,fn=64){
+
+  module _rcylinder2(h,d,fn){
+      //cylinder(h=h-d,d=d,center=true,$fn=128);
+      hull()
+      for(i=[-1,1])translate([0,0,i*(-h/2+d/2)])rotate([0,90,0])sphere(d=d,$fn=64);
+  }
+  
+  assert (r!=0 || d!=0);
+  if (d==0) {
+    assert (h>2*r,"h should be greater than 2*r");
+    if (center==true)
+      _rcylinder2(h,2*r,fn);
+    else
+      translate([0,0,h/2])_rcylinder2(h,2*r,fn);
+  }
+  else {
+    if (r>0) echo("'rcylinder': when provinding 'd', 'r' is ignored");
+    assert (h>d,"h should be greater than d");
+    if (center==true)
+      _rcylinder2(h,d,fn);
+    else
+      translate([0,0,h/2])_rcylinder2(h,d,fn);
+  }
 }
 
 
@@ -212,17 +229,19 @@ module r3cube(size,center=true,rc=0,rb=0,fn=32){
 
 
 
-*difference(){
+difference(){
   cube(12,center=true);
-  translate([0,0,5])screwM3(11,show=true);
+  !translate([0,0,5])screwM3(11,show=true);
   translate([0,0,-4.7])nutM3(rotation=0,show=true);
 }
 //translate([10,10,0])
 *torus(1,20-1,64);
 
 *rrect([10,5,2],center=false,fn=1024);
-r2cube([15,20,2],r=7.5,fn=64,center=false);
+*r2cube([15,21,2],r=3,fn=64,center=false);
 *r3cube([20,15,5],rc=2);
 *rcylinder(h=10,r=10,rb=4,center=false,fn=64);
+*rcylinder(h=10,r=2,rb=2,center=false,fn=64);
+*rcylinder2(h=10,d=3,r=2,center=true,fn=64);
 *rhcylinder(h=15,rout=14,rin=8,rb=2,center=true,fn=128);
 
